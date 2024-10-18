@@ -14,12 +14,13 @@ class RolesAndPermissionsSeeder extends Seeder
         // Define permissions
         $permissions = [
             'manage users',
-            'manage roles',
-            'manage suppliers',
-            'manage product categories',
-            'manage stock entries',
-            'approve stock entries',
-            'manage items' // Thêm quyền quản lý mặt hàng
+            'manage products',
+            'manage categories',
+            'view orders',
+            'create orders',
+            'edit orders',
+            'delete orders',
+            'manage programs'
         ];
 
         foreach ($permissions as $permission) {
@@ -31,18 +32,31 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole->syncPermissions($permissions);
 
         $managerPermissions = [
-            'manage suppliers',
-            'manage product categories',
-            'manage stock entries',
-            'approve stock entries',
-            'manage items' // Thêm quyền quản lý mặt hàng cho quản lý
+            'manage products',
+            'manage categories',
+            'view orders',
+            'create orders',
+            'edit orders',
+            'delete orders',
+            'manage programs'
         ];
         $managerRole = Role::firstOrCreate(['name' => 'manager']);
         $managerRole->syncPermissions($managerPermissions);
 
-        $employeePermissions = ['manage stock entries'];
+        $employeePermissions = [
+            'view orders',
+            'create orders',
+            'edit orders'
+        ];
         $employeeRole = Role::firstOrCreate(['name' => 'employee']);
         $employeeRole->syncPermissions($employeePermissions);
+
+        $customerPermissions = [
+            'view orders',
+            'create orders'
+        ];
+        $customerRole = Role::firstOrCreate(['name' => 'customer']);
+        $customerRole->syncPermissions($customerPermissions);
 
         // Create the first admin user if they do not exist
         $admin1 = User::firstOrCreate(
