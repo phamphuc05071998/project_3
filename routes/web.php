@@ -40,9 +40,8 @@ Route::middleware(['auth', 'role:admin|manager'])->group(function () {
 
 // Order management routes (accessible by admin, manager, employee, and customer)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/my-orders', [OrderController::class, 'myOrders'])->name('orders.myOrders');
+    Route::get('/employee-orders', [OrderController::class, 'employeeOrders'])->name('orders.employeeOrders');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
     Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');

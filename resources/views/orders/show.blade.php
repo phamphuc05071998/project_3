@@ -33,6 +33,6 @@
     </div>
 
     <!-- Back to Orders Button -->
-    <a href="{{ route('orders.index') }}" class="btn btn-primary">Back to Orders</a>
+    <button onclick="history.back()" class="btn btn-primary">Back to Orders</button>
 </div>
 @endsection

@@ -3,36 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Program;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function myOrders()
     {
-        $orders = Order::all();
+        $user = Auth::user();
+        $orders = Order::where('user_id', $user->id)->get();
         return view('orders.index', compact('orders'));
     }
 
-    public function create()
+    public function employeeOrders()
     {
-        return view('orders.create');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|string|max:255',
-            'total' => 'required|numeric',
-        ]);
-
-        Order::create($request->all());
-        return redirect()->route('orders.index')->with('success', 'Order created successfully.');
+        $orders = Order::all();
+        return view('orders.employeeOrders', compact('orders'));
     }
 
     public function show(Order $order)
     {
+        $order->load('orderItems.product');
         return view('orders.show', compact('order'));
     }
 
@@ -45,16 +39,39 @@ class OrderController extends Controller
     {
         $request->validate([
             'status' => 'required|string|max:255',
-            'total' => 'required|numeric',
         ]);
 
-        $order->update($request->all());
-        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+        $order->update($request->only('status'));
+
+        if ($request->status === 'confirmed') {
+            $this->applyLoyaltyPoints($order);
+        }
+
+        return redirect()->route('orders.employeeOrders')->with('success', 'Order updated successfully.');
     }
 
     public function destroy(Order $order)
     {
         $order->delete();
-        return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
+        return redirect()->route('orders.employeeOrders')->with('success', 'Order deleted successfully.');
+    }
+
+    private function applyLoyaltyPoints(Order $order)
+    {
+        $user = $order->user;
+        $currentDate = now();
+
+        foreach ($order->orderItems as $orderItem) {
+            $product = $orderItem->product;
+            $programs = $product->programs()->where('start_date', '<=', $currentDate)
+                                            ->where('end_date', '>=', $currentDate)
+                                            ->get();
+            // dd($programs[0]->points);
+            foreach ($programs as $program) {
+                $user->points += $program->points * $orderItem->quantity;
+            }
+        }
+
+        $user->save();
     }
 }

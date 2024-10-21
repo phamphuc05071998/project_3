@@ -21,11 +21,11 @@ class Product extends Model
 
     public function programs()
     {
-        return $this->belongsToMany(Program::class, 'program_product');
+        return $this->belongsToMany(Program::class, 'program_products');
     }
 
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);
-    }
+}
 }

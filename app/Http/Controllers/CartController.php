@@ -17,8 +17,8 @@ class CartController extends Controller
         $user = Auth::user();
 
         $cartItem = CartItem::where('user_id', $user->id)
-                            ->where('product_id', $product->id)
-                            ->first();
+            ->where('product_id', $product->id)
+            ->first();
 
         if ($cartItem) {
             $cartItem->quantity++;
@@ -49,7 +49,7 @@ class CartController extends Controller
         return redirect()->route('cart.index')->with('success', 'Product removed from cart successfully!');
     }
 
-    public function checkout()
+    public function checkout(Request $request)
     {
         $user = Auth::user();
         $cartItems = CartItem::where('user_id', $user->id)->get();
@@ -58,12 +58,23 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        $total = $cartItems->sum(function ($cartItem) {
+            return $cartItem->product->price * $cartItem->quantity;
+        });
+
+        $pointsUsed = 0;
+
+        if ($request->has('use_points') && $user->points > 0) {
+            $pointsUsed = min($user->points, $total);
+            $total -= $pointsUsed;
+            $user->points -= $pointsUsed;
+            $user->save();
+        }
+
         $order = Order::create([
             'user_id' => $user->id,
             'status' => 'Pending',
-            'total' => $cartItems->sum(function ($cartItem) {
-                return $cartItem->product->price * $cartItem->quantity;
-            }),
+            'total' => $total,
         ]);
 
         foreach ($cartItems as $cartItem) {
@@ -77,6 +88,6 @@ class CartController extends Controller
             $cartItem->delete();
         }
 
-        return redirect()->route('orders.show', $order->id)->with('success', 'Order created successfully!');
+        return redirect()->route('orders.show', $order->id)->with('success', 'Order created successfully! Points used: ' . $pointsUsed);
     }
 }

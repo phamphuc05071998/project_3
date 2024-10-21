@@ -51,7 +51,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('orders.index') }}">Manage Orders</a>
+                    <a class="nav-link" href="{{ route('orders.employeeOrders') }}">Manage Orders</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('programs.index') }}">Manage Programs</a>
@@ -59,17 +59,17 @@
                 @endhasanyrole
 
                 <!-- Links for Employee -->
-                @role('employee')
+                <!-- @role('employee')
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('orders.index') }}">View Orders</a>
+                    <a class="nav-link" href="{{ route('orders.employeeOrders') }}">View Orders</a>
                 </li>
-                @endrole
+                @endrole -->
 
                 <!-- Links for Customer -->
                 @role('customer')
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('orders.index') }}">My Orders</a>
+                    <a class="nav-link" href="{{ route('orders.myOrders') }}">My Orders</a>
                 </li>
                 @endrole
                 @auth
